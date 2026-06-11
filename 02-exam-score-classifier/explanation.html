@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo 02 — Exam-Score Classifier</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f0f4f8; color: #1e293b; line-height: 1.7; }
+
+  header { background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; padding: 48px 40px 40px; }
+  header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+  header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+  header .badge { display: inline-block; background: rgba(255,255,255,0.2); border-radius: 20px; padding: 4px 14px; font-size: 0.85rem; margin-top: 12px; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+
+  .card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 32px; overflow: hidden; }
+  .card-header { padding: 20px 28px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px; }
+  .card-header h2 { font-size: 1.2rem; font-weight: 700; color: #1e293b; }
+  .card-body { padding: 28px; }
+
+  .icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+
+  .big-picture { background: #f5f3ff; border-left: 4px solid #7c3aed; border-radius: 0 8px 8px 0; padding: 20px 24px; margin-bottom: 32px; }
+  .big-picture h2 { color: #5b21b6; font-size: 1.1rem; margin-bottom: 8px; }
+  .big-picture p { color: #3730a3; }
+
+  .analogy { background: #fefce8; border-left: 4px solid #ca8a04; border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 16px 0; }
+  .analogy strong { color: #92400e; }
+
+  .vs-box { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .vs-item { border-radius: 8px; padding: 16px; }
+  .vs-item h4 { font-size: 0.9rem; margin-bottom: 8px; font-weight: 600; }
+  .vs-pass { background: #f0fdf4; border: 1px solid #86efac; }
+  .vs-pass h4 { color: #15803d; }
+  .vs-fail { background: #fef2f2; border: 1px solid #fca5a5; }
+  .vs-fail h4 { color: #dc2626; }
+
+  .step { border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 24px; overflow: hidden; }
+  .step-header { background: #f8fafc; padding: 14px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px; }
+  .step-num { background: #7c3aed; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; }
+  .step-title { font-weight: 600; font-size: 1rem; color: #1e293b; }
+  .step-body { padding: 20px; }
+
+  pre { background: #1e293b; color: #e2e8f0; padding: 18px 20px; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; line-height: 1.6; margin: 12px 0; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+  code { font-family: "SF Mono", "Fira Code", "Consolas", monospace; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.88em; color: #be123c; }
+
+  .explain { background: #f8fafc; border-radius: 8px; padding: 16px 18px; margin-top: 12px; font-size: 0.95rem; }
+  .explain p { margin-bottom: 8px; }
+  .explain p:last-child { margin-bottom: 0; }
+
+  .why { background: #f0fdf4; border-left: 3px solid #22c55e; padding: 12px 16px; border-radius: 0 6px 6px 0; margin-top: 10px; font-size: 0.92rem; }
+  .why strong { color: #15803d; }
+
+  .note { background: #fff7ed; border-left: 3px solid #f97316; padding: 12px 16px; border-radius: 0 6px 6px 0; margin-top: 10px; font-size: 0.92rem; }
+  .note strong { color: #c2410c; }
+
+  .key-concept { background: #f5f3ff; border: 1px solid #c4b5fd; border-radius: 8px; padding: 16px 18px; margin: 16px 0; }
+  .key-concept h4 { color: #6d28d9; font-size: 0.95rem; margin-bottom: 6px; }
+
+  .output-block { background: #0f172a; color: #a3e635; padding: 20px; border-radius: 8px; font-family: "SF Mono", "Fira Code", monospace; font-size: 0.88rem; line-height: 1.8; }
+
+  .formula { background: #f5f3ff; border: 1px solid #c4b5fd; border-radius: 8px; padding: 14px 18px; text-align: center; font-size: 1.05rem; color: #5b21b6; margin: 12px 0; font-family: "SF Mono", "Fira Code", monospace; }
+
+  h3 { font-size: 1rem; color: #374151; margin-bottom: 10px; }
+  ul, ol { padding-left: 24px; }
+  li { margin-bottom: 6px; }
+
+  .file-section { margin-bottom: 40px; }
+  .file-label { display: inline-flex; align-items: center; gap: 8px; background: #1e293b; color: #e2e8f0; padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-family: monospace; margin-bottom: 20px; }
+
+  .diff-from-01 { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 14px 18px; margin: 12px 0; }
+  .diff-from-01 strong { color: #b45309; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Demo 02 — Exam-Score Classifier</h1>
+  <p class="subtitle">Teaching a perceptron to decide pass or fail from a score</p>
+  <span class="badge">Pure Python · No libraries · 2 files</span>
+</header>
+
+<div class="container">
+
+  <div class="big-picture">
+    <h2>🎯 What does this demo do?</h2>
+    <p>It trains a perceptron to classify exam scores as "pass" (≥ 50) or "fail" (&lt; 50). This is a step up from Demo 01 because <strong>both classes are positive numbers</strong> — all scores range from 0 to 100. The perceptron can no longer use the sign of the number as a shortcut; it must learn an internal "50-point threshold" entirely from examples.</p>
+  </div>
+
+  <div class="vs-box">
+    <div class="vs-item vs-pass">
+      <h4>✅ Pass (label = 1)</h4>
+      <p>Scores from 50 to 100<br>e.g. 73.2, 91.0, 50.4</p>
+    </div>
+    <div class="vs-item vs-fail">
+      <h4>❌ Fail (label = 0)</h4>
+      <p>Scores from 0 to 50<br>e.g. 12.7, 38.9, 3.1</p>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <strong>Contrast with Demo 01:</strong> In Demo 01 the perceptron only needed to detect the <em>sign</em> (positive vs negative). Here, both classes are positive — the only difference is whether the value crosses 50. The perceptron must learn a shifted boundary, which requires the bias parameter.
+  </div>
+
+  <!-- =================== PERCEPTRON.PY =================== -->
+  <div class="file-section">
+    <div class="file-label">📄 perceptron.py — The Brain</div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="icon">🧠</div>
+        <h2>What is this file?</h2>
+      </div>
+      <div class="card-body">
+        <p>This is the same Perceptron class used in all demos (each folder has its own copy). It contains three methods: initialise, predict, train, and accuracy. The explanations below are the same as in Demo 01 — skip ahead to <strong>main.py</strong> if you've already read it.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">1</div><div class="step-title">Initialise with weight, bias, and learning rate</div></div>
+      <div class="step-body">
+        <pre>self.weight = random.uniform(-1, 1)
+self.bias   = random.uniform(-1, 1) if use_bias else 0.0
+self.learning_rate = learning_rate</pre>
+        <div class="explain">
+          <p>Sets random starting values. <strong>Weight</strong> scales how much the input matters. <strong>Bias</strong> is a free offset that lets the boundary move away from zero — essential for this demo since the true boundary is at 50, not 0.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">2</div><div class="step-title">Predict: step function</div></div>
+      <div class="step-body">
+        <pre>return 1 if (self.weight * x + self.bias) > 0 else 0</pre>
+        <div class="formula">output = 1 &nbsp;if&nbsp; (weight × score + bias) &gt; 0 &nbsp;else&nbsp; 0</div>
+        <div class="explain">
+          <p>After training, the weight and bias will be tuned so this formula outputs 1 for scores ≥ 50 and 0 for scores &lt; 50. The decision boundary is at the score where the formula equals zero: <code>score = −bias ÷ weight</code>.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">3</div><div class="step-title">Train: correct mistakes epoch by epoch</div></div>
+      <div class="step-body">
+        <pre>error = y - pred
+if error != 0:
+    self.weight += self.learning_rate * error * x
+    self.bias   += self.learning_rate * error</pre>
+        <div class="explain">
+          <p>Each mistake triggers an update to both weight and bias. The key insight here is that <strong>bias is updated independently of the input</strong> — it just slides the boundary left or right without changing the slope. This is how the perceptron can move its decision point from 0 to 50.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== MAIN.PY =================== -->
+  <div class="file-section">
+    <div class="file-label">📄 main.py — The Experiment</div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">1</div><div class="step-title">Fix the seed and import</div></div>
+      <div class="step-body">
+        <pre>import random
+from perceptron import Perceptron
+
+random.seed(42)</pre>
+        <div class="explain">
+          <p>Same pattern as Demo 01. Fixing the seed to 42 ensures every run of this script produces the same data and the same results — making the experiment reproducible.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">2</div><div class="step-title">Generate 200 exam scores and assign pass/fail labels</div></div>
+      <div class="step-body">
+        <pre>scores = [random.uniform(0, 100) for _ in range(200)]
+labels = [1 if s >= 50 else 0 for s in scores]</pre>
+        <div class="explain">
+          <p>Generates 200 random decimal scores between 0 and 100, then automatically labels each one:</p>
+          <ul>
+            <li>Score ≥ 50 → label <code>1</code> (pass)</li>
+            <li>Score &lt; 50 → label <code>0</code> (fail)</li>
+          </ul>
+          <p>The perceptron is <em>not given this rule</em>. It must discover from the labelled examples that 50 is the threshold.</p>
+        </div>
+        <div class="diff-from-01">
+          <strong>Key difference from Demo 01:</strong> All 200 scores are positive numbers (0–100). The perceptron cannot rely on sign (positive vs negative) to decide — it must learn the actual value of the threshold.
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">3</div><div class="step-title">Split 80% training, 20% test</div></div>
+      <div class="step-body">
+        <pre>split = int(0.8 * len(scores))   # 160 training, 40 test
+train_x, test_x = scores[:split], scores[split:]
+train_y, test_y = labels[:split], labels[split:]</pre>
+        <div class="explain">
+          <p>The first 160 scores are used for training. The last 40 are held back for testing. No shuffling is needed here because <code>random.uniform</code> already produces scores in random order — there's no grouping to break up.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">4</div><div class="step-title">Create, train, and evaluate</div></div>
+      <div class="step-body">
+        <pre>p = Perceptron(learning_rate=0.1)
+converged_at = p.train(train_x, train_y, epochs=100)
+acc = p.accuracy(test_x, test_y)</pre>
+        <div class="explain">
+          <p>Creates a fresh perceptron with random weight and bias, trains it on the 160 scores, and then checks its accuracy on the 40 test scores.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">5</div><div class="step-title">Print the learned decision boundary</div></div>
+      <div class="step-body">
+        <pre>print(f"Decision boundary  : x = {-p.bias / p.weight:.4f}  (should be ~50)")</pre>
+        <div class="explain">
+          <p>The formula <code>−bias ÷ weight</code> calculates the exact score at which the perceptron is "on the fence". If training succeeded, this number should be close to 50. It won't be exactly 50 — small deviations are normal because the boundary just needs to sit in the gap between passing and failing scores, not on the exact threshold value.</p>
+        </div>
+        <div class="key-concept">
+          <h4>🔑 Why isn't the boundary exactly 50?</h4>
+          <p>The perceptron learns the <em>minimum boundary that separates all training examples</em>, not the midpoint. As long as no training score is exactly 50 (which is essentially impossible with <code>random.uniform</code>), any boundary between ~49.9 and ~50.1 would work equally well.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== EXPECTED OUTPUT =================== -->
+  <div class="card">
+    <div class="card-header">
+      <div class="icon">▶</div>
+      <h2>What you'll see when you run it</h2>
+    </div>
+    <div class="card-body">
+      <p style="margin-bottom:16px;">Run with: <code>python3 main.py</code></p>
+      <div class="output-block">
+=== Exam-Score Classifier ===
+Training samples   : 160
+Test samples       : 40
+Passing threshold  : 50
+Converged at epoch : 22
+Final weight       : 1.0020
+Final bias         : -49.0473
+Decision boundary  : x = 48.9512  (should be ~50)
+Test accuracy      : 100.0%
+      </div>
+      <div style="margin-top:20px;">
+        <div class="step" style="margin-bottom:12px;">
+          <div class="step-header"><div class="step-num" style="background:#7c3aed;">!</div><div class="step-title">22 epochs — harder than Demo 01</div></div>
+          <div class="step-body"><div class="explain">Demo 01 converged in 2 epochs; this one takes 22. That's because the boundary (50) is in the middle of the data range, not at a natural edge. Both weight and bias need to be tuned together, which takes more corrections.</div></div>
+        </div>
+        <div class="step" style="margin-bottom:12px;">
+          <div class="step-header"><div class="step-num" style="background:#22c55e;">✓</div><div class="step-title">Boundary learned at x ≈ 48.95</div></div>
+          <div class="step-body"><div class="explain">Very close to the true threshold of 50. The small gap is fine — no training example lies exactly at 50, so this boundary correctly separates all examples.</div></div>
+        </div>
+        <div class="step">
+          <div class="step-header"><div class="step-num" style="background:#22c55e;">✓</div><div class="step-title">100% test accuracy</div></div>
+          <div class="step-body"><div class="explain">All 40 unseen test scores were classified correctly. The perceptron successfully generalised the rule "score ≥ 50 = pass".</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

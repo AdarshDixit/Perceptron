@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo 04 — Normalisation Demo</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f0f4f8; color: #1e293b; line-height: 1.7; }
+
+  header { background: linear-gradient(135deg, #059669, #047857); color: white; padding: 48px 40px 40px; }
+  header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+  header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+  header .badge { display: inline-block; background: rgba(255,255,255,0.2); border-radius: 20px; padding: 4px 14px; font-size: 0.85rem; margin-top: 12px; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+
+  .card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 32px; overflow: hidden; }
+  .card-header { padding: 20px 28px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px; }
+  .card-header h2 { font-size: 1.2rem; font-weight: 700; color: #1e293b; }
+  .card-body { padding: 28px; }
+
+  .big-picture { background: #f0fdf4; border-left: 4px solid #059669; border-radius: 0 8px 8px 0; padding: 20px 24px; margin-bottom: 24px; }
+  .big-picture h2 { color: #047857; font-size: 1.1rem; margin-bottom: 8px; }
+  .big-picture p { color: #064e3b; }
+
+  .analogy { background: #fefce8; border-left: 4px solid #ca8a04; border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 16px 0; }
+  .analogy strong { color: #92400e; }
+
+  .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+  .compare-box { border-radius: 10px; padding: 20px; }
+  .compare-slow { background: #fef2f2; border: 2px solid #fca5a5; }
+  .compare-slow h3 { color: #dc2626; margin-bottom: 10px; }
+  .compare-fast { background: #f0fdf4; border: 2px solid #86efac; }
+  .compare-fast h3 { color: #15803d; margin-bottom: 10px; }
+
+  .step { border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 24px; overflow: hidden; }
+  .step-header { background: #f8fafc; padding: 14px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px; }
+  .step-num { background: #059669; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; }
+  .step-title { font-weight: 600; font-size: 1rem; color: #1e293b; }
+  .step-body { padding: 20px; }
+
+  pre { background: #1e293b; color: #e2e8f0; padding: 18px 20px; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; line-height: 1.6; margin: 12px 0; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+  code { font-family: "SF Mono", "Fira Code", "Consolas", monospace; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.88em; color: #be123c; }
+
+  .explain { background: #f8fafc; border-radius: 8px; padding: 16px 18px; margin-top: 12px; font-size: 0.95rem; }
+  .explain p { margin-bottom: 8px; }
+  .explain p:last-child { margin-bottom: 0; }
+
+  .why { background: #f0fdf4; border-left: 3px solid #22c55e; padding: 12px 16px; border-radius: 0 6px 6px 0; margin-top: 10px; font-size: 0.92rem; }
+  .why strong { color: #15803d; }
+
+  .warning { background: #fff7ed; border-left: 3px solid #f97316; padding: 12px 16px; border-radius: 0 6px 6px 0; margin-top: 10px; font-size: 0.92rem; }
+  .warning strong { color: #c2410c; }
+
+  .key-concept { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 16px 18px; margin: 16px 0; }
+  .key-concept h4 { color: #15803d; font-size: 0.95rem; margin-bottom: 6px; }
+
+  .formula { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 14px 18px; text-align: center; font-size: 1rem; color: #065f46; margin: 12px 0; font-family: "SF Mono", "Fira Code", monospace; }
+
+  .output-block { background: #0f172a; color: #a3e635; padding: 20px; border-radius: 8px; font-family: "SF Mono", "Fira Code", monospace; font-size: 0.88rem; line-height: 1.8; }
+  .output-slow { color: #f87171; }
+  .output-fast { color: #a3e635; }
+
+  ul, ol { padding-left: 24px; }
+  li { margin-bottom: 6px; }
+  h3 { font-size: 1rem; color: #374151; margin-bottom: 10px; }
+
+  .file-section { margin-bottom: 40px; }
+  .file-label { display: inline-flex; align-items: center; gap: 8px; background: #1e293b; color: #e2e8f0; padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-family: monospace; margin-bottom: 20px; }
+
+  .math-walkthrough { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 16px 0; }
+  .math-row { display: grid; grid-template-columns: auto 1fr; gap: 12px; margin-bottom: 12px; align-items: start; }
+  .math-label { background: #1e293b; color: #e2e8f0; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-family: monospace; white-space: nowrap; }
+  .math-desc { font-size: 0.92rem; padding-top: 2px; }
+
+  .stat-highlight { display: inline-block; background: #fef9c3; border: 1px solid #fde047; border-radius: 6px; padding: 2px 10px; font-weight: 600; color: #713f12; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Demo 04 — Normalisation Demo</h1>
+  <p class="subtitle">How rescaling inputs makes learning 256× faster</p>
+  <span class="badge">Pure Python · No libraries · 2 files</span>
+</header>
+
+<div class="container">
+
+  <div class="big-picture">
+    <h2>🎯 What does this demo do?</h2>
+    <p>It trains the <strong>same perceptron twice on the same data</strong>, with one difference: the second run rescales all input values to fit between 0 and 1 before training. The result is a dramatic speedup — the normalised version converges in <strong>3 epochs</strong> while the raw version takes <strong>768 epochs</strong>, a 256× difference.</p>
+  </div>
+
+  <div class="comparison-grid">
+    <div class="compare-box compare-slow">
+      <h3>🐢 Without Normalisation</h3>
+      <p>Raw scores 0–10000<br>Huge weight updates (up to ±1000 per step)<br><strong>768 epochs to converge</strong></p>
+    </div>
+    <div class="compare-box compare-fast">
+      <h3>🚀 With Normalisation</h3>
+      <p>Scores rescaled to 0–1<br>Tiny weight updates (max ±0.1 per step)<br><strong>3 epochs to converge</strong></p>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Imagine tuning a radio dial. If one small turn moves the frequency by 10,000 MHz you'll overshoot constantly. If one turn moves it by 1 MHz you can land precisely on the right station. Normalisation turns the "coarse" dial into a "fine" one.
+  </div>
+
+  <!-- =================== PERCEPTRON.PY =================== -->
+  <div class="file-section">
+    <div class="file-label">📄 perceptron.py — The Brain</div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">1</div><div class="step-title">The update rule — why input magnitude matters</div></div>
+      <div class="step-body">
+        <pre>self.weight += self.learning_rate * error * x</pre>
+        <div class="explain">
+          <p>This single line is the reason normalisation matters so much. The weight update size is <strong>learning_rate × error × x</strong>. Let's see what this means for each run:</p>
+        </div>
+        <div class="math-walkthrough">
+          <div class="math-row">
+            <span class="math-label">Without norm</span>
+            <span class="math-desc">learning_rate = 0.1, error = ±1, x can be up to 10000<br>→ update size = 0.1 × 1 × 10000 = <strong>1000</strong> per step</span>
+          </div>
+          <div class="math-row">
+            <span class="math-label">With norm</span>
+            <span class="math-desc">learning_rate = 0.1, error = ±1, x is at most 1.0<br>→ update size = 0.1 × 1 × 1 = <strong>0.1</strong> per step</span>
+          </div>
+        </div>
+        <div class="explain">
+          <p>A weight update of 1000 on one example can be completely cancelled by the next example, causing the perceptron to oscillate back and forth for hundreds of epochs before it happens to land in the right place. An update of 0.1 takes small, stable steps toward the right answer.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== MAIN.PY =================== -->
+  <div class="file-section">
+    <div class="file-label">📄 main.py — The Experiment</div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">1</div><div class="step-title">Generate deliberately large-range data</div></div>
+      <div class="step-body">
+        <pre>random.seed(42)
+scores = [random.uniform(0, 10000) for _ in range(200)]
+labels = [1 if s >= 5000 else 0 for s in scores]</pre>
+        <div class="explain">
+          <p>Creates 200 exam scores from 0 to 10,000 — a deliberately exaggerated range. Scores ≥ 5000 are labelled "pass". The large range is chosen to make the problem with raw training visible. In real life, large feature ranges arise naturally (income in dollars, distances in metres, prices in various currencies).</p>
+        </div>
+        <div class="why"><strong>Why 0–10000?</strong> A range of 0–100 (like Demo 02) converges in 22 epochs even without normalisation, so the difference isn't dramatic. The 100× larger range here makes the oscillation problem obvious and the speedup striking.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">2</div><div class="step-title">Run 1 — train on raw values</div></div>
+      <div class="step-body">
+        <pre>random.seed(99)
+p_raw = Perceptron(learning_rate=0.1)
+ep_raw = p_raw.train(train_x, train_y, epochs=1000)</pre>
+        <div class="explain">
+          <p>Trains directly on the raw scores (0–10000). The epoch limit is 1000 (not 100 like other demos) because we expect this run to take much longer. The re-seed ensures a fair comparison with Run 2.</p>
+        </div>
+        <div class="warning"><strong>What's happening internally:</strong> Each large input (e.g. a score of 9800) causes a weight update of up to ±980. The weight swings wildly between large positive and negative values. The perceptron corrects one mistake and immediately overcorrects in the process, causing new mistakes on the other side. This continues for hundreds of epochs before the updates accidentally stabilise.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">3</div><div class="step-title">Compute normalisation bounds from training data only</div></div>
+      <div class="step-body">
+        <pre>x_min = min(train_x)
+x_max = max(train_x)</pre>
+        <div class="explain">
+          <p>Finds the smallest and largest score in the <strong>training set only</strong>. These two numbers define the rescaling range.</p>
+        </div>
+        <div class="key-concept">
+          <h4>🔑 Why training data only — not test data?</h4>
+          <p>This is called avoiding <strong>"data leakage"</strong>. In the real world, you train a model <em>before</em> you deploy it. At training time, you don't have access to future data. If you compute statistics (like min/max) from the test set, you're cheating — you're using information that wouldn't be available in a real scenario. The correct approach: fit the scale on training data, then apply it to everything else.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">4</div><div class="step-title">Define and apply the normalisation function</div></div>
+      <div class="step-body">
+        <pre>def normalise(x):
+    return (x - x_min) / (x_max - x_min)
+
+norm_train_x = [normalise(x) for x in train_x]
+norm_test_x  = [normalise(x) for x in test_x]</pre>
+        <div class="explain">
+          <p>This is the <strong>min-max normalisation</strong> formula. It squashes any value into the range [0, 1]:</p>
+        </div>
+        <div class="formula">normalised = (value − minimum) ÷ (maximum − minimum)</div>
+        <div class="explain">
+          <p>Let's trace through two examples with x_min ≈ 6 and x_max ≈ 9975:</p>
+          <ul>
+            <li>Score = 6 (minimum): (6 − 6) ÷ (9975 − 6) = 0 ÷ 9969 = <strong>0.0</strong></li>
+            <li>Score = 9975 (maximum): (9975 − 6) ÷ (9975 − 6) = 9969 ÷ 9969 = <strong>1.0</strong></li>
+            <li>Score = 5000 (threshold): (5000 − 6) ÷ (9975 − 6) = 4994 ÷ 9969 ≈ <strong>0.501</strong></li>
+          </ul>
+          <p>The same formula (with the same x_min and x_max from training) is applied to the test data. This keeps the two datasets on the same scale.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">5</div><div class="step-title">Run 2 — train on normalised values</div></div>
+      <div class="step-body">
+        <pre>random.seed(99)
+p_norm = Perceptron(learning_rate=0.1)
+ep_norm = p_norm.train(norm_train_x, train_y, epochs=1000)</pre>
+        <div class="explain">
+          <p>Same structure as Run 1 — same seed (fair comparison), same learning rate. The only difference is the input values are now in [0, 1] instead of [0, 10000]. Maximum weight update per step is now 0.1 × 1 × 1 = <strong>0.1</strong> instead of up to 1000. The perceptron takes tiny, stable steps and converges in 3 epochs.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">6</div><div class="step-title">Print the side-by-side comparison</div></div>
+      <div class="step-body">
+        <pre>if ep_raw and ep_norm:
+    print(f"Result: normalisation reduced convergence from epoch {ep_raw} to {ep_norm} "
+          f"({ep_raw - ep_norm} fewer epochs, {ep_raw / ep_norm:.1f}x faster).")</pre>
+        <div class="explain">
+          <p>Prints a summary comparing epochs to convergence. Handles all four possible outcomes (both converge, only raw converges, only normalised converges, neither converges) to avoid a divide-by-zero crash.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== EXPECTED OUTPUT =================== -->
+  <div class="card">
+    <div class="card-header">
+      <div class="icon">▶</div>
+      <h2>What you'll see when you run it</h2>
+    </div>
+    <div class="card-body">
+      <p style="margin-bottom:16px;">Run with: <code>python3 main.py</code></p>
+      <div class="output-block">
+=== Normalisation Demo ===
+Dataset            : exam scores 0–10000, pass if &gt;= 5000
+Training samples   : 160
+Test samples       : 40
+Raw value range    : [5.7, 9975.4]
+
+--- Without Normalisation ---
+<span class="output-slow">Converged at epoch : 768</span>
+Final weight       : 0.6376
+Final bias         : -3191.3998
+Test accuracy      : 100.0%
+
+--- With Min-Max Normalisation (scaled to [0, 1]) ---
+Scale applied      : (x - 6) / (9975 - 6)
+<span class="output-fast">Converged at epoch : 3</span>
+Final weight       : 0.4102
+Final bias         : -0.1998
+Test accuracy      : 100.0%
+
+<span class="output-fast">Result: normalisation reduced convergence from epoch 768 to 3 (765 fewer epochs, 256.0x faster).</span>
+      </div>
+      <div style="margin-top:20px;">
+        <div class="step" style="margin-bottom:12px;">
+          <div class="step-header"><div class="step-num" style="background:#dc2626;">!</div><div class="step-title">768 vs 3 epochs — the same problem, solved 256× faster</div></div>
+          <div class="step-body"><div class="explain">Both perceptrons reach 100% accuracy in the end. The data is the same, the learning rule is the same, the learning rate is the same. The <em>only</em> difference is the scale of the inputs. This is why normalisation is a standard first step in almost every machine learning pipeline.</div></div>
+        </div>
+        <div class="step">
+          <div class="step-header"><div class="step-num" style="background:#059669;">!</div><div class="step-title">The weights look very different — but they encode the same boundary</div></div>
+          <div class="step-body">
+            <div class="explain">
+              <p>Raw: weight = 0.6376, bias = −3191.4 → boundary at −(−3191.4) ÷ 0.6376 ≈ 5005 ✓</p>
+              <p>Normalised: weight = 0.4102, bias = −0.1998 → boundary at −(−0.1998) ÷ 0.4102 ≈ 0.487 (in [0,1] space, which maps back to ≈ 4862 in original space) ✓</p>
+              <p>Both have found a boundary near 5000. The numbers look different because one is in the original scale and the other is in the normalised scale — but the decision is the same.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

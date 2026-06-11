@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo 03 — Bias Demonstration</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f0f4f8; color: #1e293b; line-height: 1.7; }
+
+  header { background: linear-gradient(135deg, #d97706, #b45309); color: white; padding: 48px 40px 40px; }
+  header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+  header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+  header .badge { display: inline-block; background: rgba(255,255,255,0.2); border-radius: 20px; padding: 4px 14px; font-size: 0.85rem; margin-top: 12px; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+
+  .card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 32px; overflow: hidden; }
+  .card-header { padding: 20px 28px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px; }
+  .card-header h2 { font-size: 1.2rem; font-weight: 700; color: #1e293b; }
+  .card-body { padding: 28px; }
+
+  .big-picture { background: #fffbeb; border-left: 4px solid #d97706; border-radius: 0 8px 8px 0; padding: 20px 24px; margin-bottom: 24px; }
+  .big-picture h2 { color: #b45309; font-size: 1.1rem; margin-bottom: 8px; }
+  .big-picture p { color: #78350f; }
+
+  .analogy { background: #fefce8; border-left: 4px solid #ca8a04; border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 16px 0; }
+  .analogy strong { color: #92400e; }
+
+  .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+  .compare-box { border-radius: 10px; padding: 20px; }
+  .compare-with { background: #f0fdf4; border: 2px solid #86efac; }
+  .compare-with h3 { color: #15803d; margin-bottom: 10px; }
+  .compare-without { background: #fef2f2; border: 2px solid #fca5a5; }
+  .compare-without h3 { color: #dc2626; margin-bottom: 10px; }
+
+  .step { border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 24px; overflow: hidden; }
+  .step-header { background: #f8fafc; padding: 14px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px; }
+  .step-num { background: #d97706; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; }
+  .step-title { font-weight: 600; font-size: 1rem; color: #1e293b; }
+  .step-body { padding: 20px; }
+
+  .phase-header { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px 8px 0 0; padding: 12px 18px; font-weight: 600; font-size: 0.95rem; margin-top: 20px; margin-bottom: 0; border-bottom: none; }
+  .phase-pass { background: #f0fdf4; border-color: #86efac; color: #15803d; }
+  .phase-fail { background: #fef2f2; border-color: #fca5a5; color: #dc2626; }
+  .phase-body { border: 1px solid #e2e8f0; border-radius: 0 0 8px 8px; padding: 16px 18px; border-top: none; margin-bottom: 12px; }
+
+  pre { background: #1e293b; color: #e2e8f0; padding: 18px 20px; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; line-height: 1.6; margin: 12px 0; font-family: "SF Mono", "Fira Code", "Consolas", monospace; }
+  code { font-family: "SF Mono", "Fira Code", "Consolas", monospace; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.88em; color: #be123c; }
+
+  .explain { background: #f8fafc; border-radius: 8px; padding: 16px 18px; margin-top: 12px; font-size: 0.95rem; }
+  .explain p { margin-bottom: 8px; }
+  .explain p:last-child { margin-bottom: 0; }
+
+  .why { background: #f0fdf4; border-left: 3px solid #22c55e; padding: 12px 16px; border-radius: 0 6px 6px 0; margin-top: 10px; font-size: 0.92rem; }
+  .why strong { color: #15803d; }
+
+  .alert { background: #fef2f2; border-left: 3px solid #ef4444; padding: 12px 16px; border-radius: 0 6px 6px 0; margin-top: 10px; font-size: 0.92rem; }
+  .alert strong { color: #dc2626; }
+
+  .key-concept { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 16px 18px; margin: 16px 0; }
+  .key-concept h4 { color: #b45309; font-size: 0.95rem; margin-bottom: 6px; }
+
+  .output-block { background: #0f172a; color: #a3e635; padding: 20px; border-radius: 8px; font-family: "SF Mono", "Fira Code", monospace; font-size: 0.88rem; line-height: 1.8; }
+  .output-pass { color: #a3e635; }
+  .output-fail { color: #f87171; }
+
+  .formula { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 14px 18px; text-align: center; font-size: 1rem; color: #92400e; margin: 12px 0; font-family: "SF Mono", "Fira Code", monospace; }
+
+  ul, ol { padding-left: 24px; }
+  li { margin-bottom: 6px; }
+  h3 { font-size: 1rem; color: #374151; margin-bottom: 10px; }
+
+  .file-section { margin-bottom: 40px; }
+  .file-label { display: inline-flex; align-items: center; gap: 8px; background: #1e293b; color: #e2e8f0; padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-family: monospace; margin-bottom: 20px; }
+
+  .number-line { background: #1e293b; border-radius: 8px; padding: 24px 20px; text-align: center; margin: 16px 0; color: #e2e8f0; font-family: monospace; font-size: 0.88rem; }
+  .number-line .line-container { position: relative; height: 40px; margin: 12px 0; }
+  .nl-bar { background: #374151; height: 4px; position: absolute; top: 18px; left: 0; right: 0; }
+  .nl-label { position: absolute; top: 0; font-size: 0.78rem; text-align: center; }
+  .nl-red { color: #f87171; }
+  .nl-green { color: #a3e635; }
+  .nl-yellow { color: #fbbf24; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Demo 03 — Bias Demonstration</h1>
+  <p class="subtitle">What happens when you remove the perceptron's ability to shift its decision point</p>
+  <span class="badge">Pure Python · No libraries · 2 files</span>
+</header>
+
+<div class="container">
+
+  <div class="big-picture">
+    <h2>🎯 What does this demo do?</h2>
+    <p>It runs the <strong>same dataset through two perceptrons</strong> — one with a bias and one without. The goal is to show that when the correct decision boundary is not at zero, removing the bias makes it impossible to classify data correctly.</p>
+  </div>
+
+  <div class="comparison-grid">
+    <div class="compare-box compare-with">
+      <h3>✅ With Bias</h3>
+      <p>The boundary can slide to wherever the data requires — in this case, x = 50. Converges quickly, 100% accuracy.</p>
+    </div>
+    <div class="compare-box compare-without">
+      <h3>❌ Without Bias</h3>
+      <p>The boundary is permanently locked at x = 0. Since all inputs are positive (0–100), the perceptron cannot separate them by sign alone. Never converges, ~50% accuracy.</p>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <strong>Analogy:</strong> Imagine a sliding door that is welded shut at the centre. You can push harder (change the weight) but it will never open past the midpoint. Bias is the mechanism that lets the door slide to the right position.
+  </div>
+
+  <!-- =================== PERCEPTRON.PY =================== -->
+  <div class="file-section">
+    <div class="file-label">📄 perceptron.py — The Brain</div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">1</div><div class="step-title">The use_bias flag — the key feature of this file</div></div>
+      <div class="step-body">
+        <pre>def __init__(self, learning_rate=0.1, use_bias=True):
+    self.weight = random.uniform(-1, 1)
+    self.bias   = random.uniform(-1, 1) if use_bias else 0.0
+    self.use_bias = use_bias</pre>
+        <div class="explain">
+          <p>The <code>use_bias</code> parameter is what makes this demo possible. When <code>use_bias=True</code> (default), the bias is initialised randomly and updated during training. When <code>use_bias=False</code>, the bias is permanently set to <strong>0.0</strong> and never changes — it is as if it doesn't exist.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">2</div><div class="step-title">Why a fixed bias of 0 is a problem</div></div>
+      <div class="step-body">
+        <div class="formula">Decision boundary = −bias ÷ weight = −0 ÷ weight = 0</div>
+        <div class="explain">
+          <p>When bias is 0, the decision boundary formula always gives <strong>zero</strong>, regardless of what the weight is. The boundary is stuck at x = 0 forever.</p>
+          <p>This means the perceptron can only ask: <em>"is the input positive or negative?"</em> — it cannot ask <em>"is the input above 50?"</em></p>
+        </div>
+        <div class="alert"><strong>The trap:</strong> Since all exam scores (0–100) are positive numbers, <code>weight × score</code> always has the same sign as <code>weight</code> — regardless of the actual score. The perceptron can only predict the same class for every input. It is fundamentally unable to distinguish a score of 30 from a score of 70.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">3</div><div class="step-title">The bias update is guarded</div></div>
+      <div class="step-body">
+        <pre>if error != 0:
+    self.weight += self.learning_rate * error * x
+    if self.use_bias:           # ← only update bias when it's enabled
+        self.bias += self.learning_rate * error</pre>
+        <div class="explain">
+          <p>Every time a mistake is made, the weight is updated regardless. The bias is only updated when <code>use_bias=True</code>. When <code>use_bias=False</code>, the bias stays at 0.0 — the guard here makes sure of that.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== MAIN.PY =================== -->
+  <div class="file-section">
+    <div class="file-label">📄 main.py — The Experiment</div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">1</div><div class="step-title">Generate the exam score dataset</div></div>
+      <div class="step-body">
+        <pre>random.seed(42)
+scores = [random.uniform(0, 100) for _ in range(200)]
+labels = [1 if s >= 50 else 0 for s in scores]</pre>
+        <div class="explain">
+          <p>Creates 200 exam scores between 0 and 100, labelled 1 for pass (≥ 50) and 0 for fail. All values are positive — this is the critical property that makes the no-bias case fail. Then splits 80% for training (160 samples) and 20% for testing (40 samples).</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">2</div><div class="step-title">Re-seed before each perceptron for a fair comparison</div></div>
+      <div class="step-body">
+        <pre># Run 1
+random.seed(99)
+p_with = Perceptron(learning_rate=0.1, use_bias=True)
+
+# Run 2
+random.seed(99)
+p_no = Perceptron(learning_rate=0.1, use_bias=False)</pre>
+        <div class="explain">
+          <p>Both perceptrons are created with <code>random.seed(99)</code> reset before each. This ensures they both start with the <strong>same initial weight value</strong>. Without this, one perceptron might do better just because it got a luckier random starting point — not because of bias.</p>
+        </div>
+        <div class="why"><strong>Why does this matter?</strong> Scientific experiments need a control: the only thing that should differ between the two runs is the single variable being tested (bias on vs off). Identical starting weights make the comparison fair.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">3</div><div class="step-title">Run 1 — With bias (use_bias=True)</div></div>
+      <div class="step-body">
+        <pre>p_with = Perceptron(learning_rate=0.1, use_bias=True)
+ep_with = p_with.train(train_x, train_y, epochs=100)
+acc_with = p_with.accuracy(test_x, test_y)
+boundary_with = -p_with.bias / p_with.weight</pre>
+        <div class="phase-header phase-pass">✅ With Bias — what happens</div>
+        <div class="phase-body">
+          <p>The perceptron is free to adjust <em>both</em> weight and bias on every mistake. Over a few epochs it discovers a weight and bias combination that places the decision boundary at approximately x = 50. This perfectly separates the two classes.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header"><div class="step-num">4</div><div class="step-title">Run 2 — Without bias (use_bias=False)</div></div>
+      <div class="step-body">
+        <pre>p_no = Perceptron(learning_rate=0.1, use_bias=False)
+ep_no = p_no.train(train_x, train_y, epochs=100)
+acc_no = p_no.accuracy(test_x, test_y)</pre>
+        <div class="phase-header phase-fail">❌ Without Bias — what happens</div>
+        <div class="phase-body">
+          <p>Only the weight can change. But when all inputs are positive, <code>weight × x</code> always has the same sign as <code>weight</code>. If weight is positive, every prediction is 1 (pass). If negative, every prediction is 0 (fail). The perceptron oscillates between these two extremes, never finding a valid solution. After 100 epochs it still gets roughly half wrong.</p>
+        </div>
+        <div class="key-concept">
+          <h4>🔑 The mathematical reason it fails</h4>
+          <p>Without bias, <code>predict(x) = 1 if weight × x &gt; 0 else 0</code>. For positive x, this simplifies to: <code>predict(x) = 1 if weight &gt; 0 else 0</code>. The value of <em>x itself has no effect on the decision</em>. A score of 10 and a score of 90 get the same label. The perceptron is blind to the actual value.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== EXPECTED OUTPUT =================== -->
+  <div class="card">
+    <div class="card-header">
+      <div class="icon">▶</div>
+      <h2>What you'll see when you run it</h2>
+    </div>
+    <div class="card-body">
+      <p style="margin-bottom:16px;">Run with: <code>python3 main.py</code></p>
+      <div class="output-block">
+=== Bias Demonstration ===
+Dataset            : exam scores 0–100, pass if &gt;= 50
+Training samples   : 160
+Test samples       : 40
+
+--- With Bias ---
+Converged at epoch : 3
+Final weight       : 0.1159
+Final bias         : -5.7998
+<span class="output-pass">Decision boundary  : x = 50.0578  (should be ~50)
+Test accuracy      : 100.0%</span>
+
+--- Without Bias ---
+Converged at epoch : did not converge within 100 epochs
+Final weight       : 1.0816
+Bias               : 0.0  (fixed — cannot move)
+<span class="output-fail">Decision boundary  : x = 0.0  (locked at origin)
+Test accuracy      : 42.5%</span>
+
+Explanation:
+  All inputs are positive (0–100). The correct boundary is at x=50.
+  Without bias, the boundary is always x=0 ...
+  The perceptron ends up classifying everything as one class — ~50% accuracy.
+      </div>
+      <div style="margin-top:20px;">
+        <div class="step" style="margin-bottom:12px;">
+          <div class="step-header"><div class="step-num" style="background:#22c55e;">✓</div><div class="step-title">With bias: converged in 3 epochs, boundary at 50.06, 100% accuracy</div></div>
+          <div class="step-body"><div class="explain">Bias gave the perceptron the freedom to slide the boundary to wherever the data required. It found the threshold in just 3 passes.</div></div>
+        </div>
+        <div class="step">
+          <div class="step-header"><div class="step-num" style="background:#ef4444;">✗</div><div class="step-title">Without bias: never converged, boundary at 0, only 42.5% accuracy</div></div>
+          <div class="step-body"><div class="explain">Without bias the boundary cannot move from zero. Since all scores are positive, the perceptron ends up classifying everything as "pass" (since weight becomes positive from all the failed corrections), which is only correct for the ~50% of scores that actually are ≥ 50.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
